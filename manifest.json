@@ -1,0 +1,16 @@
+json
+{
+  "name": "Anomaly",
+  "short_name": "Anomaly",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#EDEEF0",
+  "theme_color": "#0077FF",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/512",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
