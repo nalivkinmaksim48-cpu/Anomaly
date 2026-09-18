@@ -2,7 +2,8 @@ json
 {
   "name": "Anomaly",
   "short_name": "Anomaly",
-  "start_url": "./index.html",
+  "start_url": "/Anomaly/",
+  "scope": "/Anomaly/",
   "display": "standalone",
   "background_color": "#EDEEF0",
   "theme_color": "#0077FF",
