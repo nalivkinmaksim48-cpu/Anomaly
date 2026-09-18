@@ -1,149 +1,163 @@
-index.html
 ```html
-<link rel="manifest" href="./manifest.json">
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SecureSocial AI</title>
+    <title>Anomaly AI Client</title>
     <style>
         :root {
-            --vk-blue: #0077FF;
-            --vk-bg: #EDEEF0;
-            --vk-card: #FFFFFF;
-            --vk-text: #000000;
-            --vk-subtext: #818C99;
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --primary-color: #6366f1;
+            --text-main: #ffffff;
+            --text-sub: #a1a1aa;
+            --bubble-user: #4f46e5;
+            --bubble-ai: #27272a;
         }
-        body.dark {
-            --vk-bg: #191919;
-            --vk-card: #222222;
-            --vk-text: #FFFFFF;
-            --vk-subtext: #999999;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        body { background-color: var(--vk-bg); color: var(--vk-text); display: flex; flex-direction: column; height: 100vh; }
-        header { background-color: var(--vk-card); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.1); }
-        .logo { font-weight: bold; color: var(--vk-blue); font-size: 18px; }
-        .theme-btn { background: none; border: none; font-size: 16px; cursor: pointer; }
-        .content { flex: 1; overflow-y: auto; padding: 12px; display: none; }
-        .content.active { display: block; }
-        nav { background-color: var(--vk-card); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid rgba(0,0,0,0.1); }
-        .nav-item { background: none; border: none; color: var(--vk-subtext); font-size: 12px; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-        .nav-item.active { color: var(--vk-blue); }
-        .nav-item span { font-size: 20px; margin-bottom: 2px; }
-        .player-card { background: var(--vk-card); padding: 16px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .track-info { margin-bottom: 10px; }
-        .track-title { font-weight: bold; }
-        .track-artist { font-size: 13px; color: var(--vk-subtext); }
-        .controls { display: flex; gap: 10px; margin-top: 10px; }
-        button.vk-btn { background-color: var(--vk-blue); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 500; }
-        .chat-list-item { background: var(--vk-card); padding: 12px; border-radius: 8px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
-        .chat-avatar { width: 40px; height: 40px; background: var(--vk-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
-        .chat-box { display: flex; flex-direction: column; height: 100%; }
-        .messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 10px; }
-        .msg { padding: 10px 14px; border-radius: 10px; max-width: 80%; font-size: 14px; }
-        .msg.user { background: var(--vk-blue); color: white; align-self: flex-end; }
-        .msg.ai { background: var(--vk-card); align-self: flex-start; }
-        .chat-input-area { display: flex; gap: 8px; padding-top: 8px; }
-        .chat-input-area input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ccc; outline: none; background: var(--vk-card); color: var(--vk-text); }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
-        .modal-content { background: var(--vk-card); padding: 24px; border-radius: 16px; text-align: center; width: 80%; max-width: 300px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+        /* Верхняя панель */
+        header { background-color: var(--surface-color); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #27272a; }
+        .logo { font-weight: bold; font-size: 16px; color: var(--primary-color); display: flex; align-items: center; gap: 8px; }
+        .settings-btn { background: none; border: none; color: var(--text-sub); font-size: 18px; cursor: pointer; }
+
+        /* Окно чата */
+        .chat-container { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+        .message { max-width: 80%; padding: 12px 16px; border-radius: 14px; font-size: 14px; line-height: 1.5; word-break: break-word; }
+        .message.user { background: var(--bubble-user); align-self: flex-end; border-bottom-right-radius: 4px; }
+        .message.ai { background: var(--bubble-ai); align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid #3f3f46; }
+
+        /* Панель ввода */
+        .input-area { background-color: var(--surface-color); padding: 12px 16px; display: flex; gap: 10px; align-items: center; border-top: 1px solid #27272a; }
+        .input-area input { flex: 1; background: var(--bg-color); border: 1px solid #3f3f46; padding: 12px 16px; border-radius: 24px; color: var(--text-main); font-size: 14px; outline: none; }
+        .input-area input:focus { border-color: var(--primary-color); }
+        .send-btn { background: var(--primary-color); border: none; width: 44px; height: 44px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; }
+
+/* Модальное окно настроек API */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 100; }
+        .modal-content { background: var(--surface-color); padding: 24px; border-radius: 16px; width: 85%; max-width: 320px; display: flex; flex-direction: column; gap: 14px; border: 1px solid #3f3f46; }
+        .modal-content h3 { font-size: 16px; }
+        .modal-content input { width: 100%; background: var(--bg-color); border: 1px solid #3f3f46; padding: 10px 12px; border-radius: 8px; color: var(--text-main); font-size: 13px; outline: none; }
+        .modal-buttons { display: flex; gap: 10px; justify-content: flex-end; margin-top: 6px; }
+        .modal-buttons button { padding: 8px 16px; border-radius: 8px; border: none; font-weight: 500; cursor: pointer; font-size: 13px; }
+        .btn-save { background: var(--primary-color); color: white; }
+        .btn-cancel { background: transparent; color: var(--text-sub); }
     </style>
 </head>
 <body>
-    <header>
-        <div class="logo">VK Secure AI</div>
-        <button class="theme-btn" onclick="toggleTheme()">💡</button>
-    </header>
-    <div class="content active" id="tab-feed">
-        <h3 style="margin-bottom: 12px;">Музыкальный архив (Бесплатно)</h3>
-        <div class="player-card">
-            <div class="track-info">
-                <div class="track-title">Трек #1 (ВК Музыка)</div>
 
-<div class="track-artist">Исполнитель анонимный</div>
-            </div>
-            <audio id="audio" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" preload="none"></audio>
-            <div class="controls">
-                <button class="vk-btn" onclick="togglePlay()">Play / Pause</button>
-                <button class="vk-btn" onclick="cacheTrack()" style="background: #4bb34b;">В кеш (Offline)</button>
-            </div>
-        </div>
+    <header>
+        <div class="logo">⚡ Anomaly AI</div>
+        <button class="settings-btn" onclick="openSettings()">⚙️</button>
+    </header>
+
+    <div class="chat-container" id="chat-container">
+        <div class="message ai">Привет! Я твой личный ИИ-ассистент. Нажми на шестеренку вверху справа, чтобы указать свой API-ключ, и мы сможем общаться без ограничений!</div>
     </div>
-    <div class="content" id="tab-messages">
-        <h3 style="margin-bottom: 12px;">Сообщения</h3>
-        <div class="chat-list-item" onclick="openAIChat()">
-            <div class="chat-avatar">AI</div>
-            <div>
-                <div style="font-weight: bold;">AI Assistant</div>
-                <div style="font-size: 13px; color: var(--vk-subtext);">Пробный период: <span id="limit-counter">10</span> сообщений</div>
-            </div>
-        </div>
+
+    <div class="input-area">
+        <input type="text" id="user-input" placeholder="Спросите о чем угодно..." onkeypress="handleKeyPress(event)">
+        <button class="send-btn" onclick="sendMessage()">➤</button>
     </div>
-    <div class="content" id="tab-aicall" style="height: 100%;">
-        <div class="chat-box">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <h4>AI Assistant (Шифрованный чат)</h4>
-                <button class="vk-btn" onclick="switchTab('tab-messages')" style="padding: 4px 8px; font-size: 12px;">Назад</button>
-            </div>
-            <div class="messages" id="chat-messages">
-                <div class="msg ai">Привет! Я твой ИИ-помощник в защищенном контуре. Задай мне любой вопрос.</div>
-            </div>
-            <div class="chat-input-area">
-                <input type="text" id="user-input" placeholder="Введите сообщение...">
-                <button class="vk-btn" onclick="sendMsg()">Отправить</button>
-            </div>
-        </div>
-    </div>
-    <nav>
-        <button class="nav-item active" onclick="switchTab('tab-feed')"><span>🎵</span>Музыка</button>
-        <button class="nav-item" onclick="switchTab('tab-messages')"><span>💬</span>Чаты</button>
-    </nav>
-    <div class="modal" id="payModal">
+
+    <!-- Модальное окно настроек -->
+    <div class="modal" id="settingsModal">
         <div class="modal-content">
-            <h3>Лимит исчерпан</h3>
-            <p style="margin: 12px 0; font-size: 14px; color: var(--vk-subtext);">Бесплатные 10 сообщений закончились. Оформите Премиум для безлимитной работы с ИИ.</p>
-            <button class="vk-btn" onclick="buyPrem()" style="width: 100%; margin-bottom: 8px;">Купить за 990 ₽</button>
-            <button onclick="closeModal()" style="background:none; border:none; color:var(--vk-subtext); cursor:pointer;">Закрыть</button>
+            <h3>Настройки API</h3>
+            <p style="font-size: 12px; color: var(--text-sub);">Введите ваш ключ API (например, OpenAI GPT или совместимый шлюз):</p>
+            <input type="password" id="api-key-input" placeholder="sk-...">
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeSettings()">Отмена</button>
+                <button class="btn-save" onclick="saveSettings()">Сохранить</button>
+            </div>
         </div>
     </div>
+
     <script>
-        let msgLimit = 10;
-        let isPrem = false;
-        function switchTab(tabId) {
-            document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            if(tabId !== 'tab-aicall') { event.currentTarget.classList.add('active'); }
+        let apiKey = localStorage.getItem('anomaly_api_key') || '';
+
+        function openSettings() {
+            document.getElementById('api-key-input').value = apiKey;
+            document.getElementById('settingsModal').style.display = 'flex';
         }
-        function toggleTheme() { document.body.classList.toggle('dark'); }
-        const audio = document.getElementById('audio');
-        function togglePlay() { if (audio.paused) { audio.play(); } else { audio.pause(); } }
-        function cacheTrack() { alert('Трек успешно сохранен в кеш устройства для офлайн прослушивания!'); }
-        function openAIChat() { switchTab('tab-aicall'); }
-        function sendMsg() {
+
+        function closeSettings() {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+
+        function saveSettings() {
+            apiKey = document.getElementById('api-key-input').value.trim();
+            localStorage.setItem('anomaly_api_key', apiKey);
+            closeSettings();
+            alert('API-ключ успешно сохранен на устройстве!');
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+
+        async function sendMessage() {
             const input = document.getElementById('user-input');
             const text = input.value.trim();
             if(!text) return;
-            if(!isPrem && msgLimit <= 0) { document.getElementById('payModal').style.display = 'flex'; return; }
-            if(!isPrem) { msgLimit--; document.getElementById('limit-counter').innerText = msgLimit; }
-            const chat = document.getElementById('chat-messages');
-            chat.innerHTML += <div class="msg user">${text}</div>;
-            input.value = '';
-            setTimeout(() => {
 
-chat.innerHTML += <div class="msg ai">Ответ ИИ на ваш запрос (Безопасный режим активен). Оставшихся бесплатных сообщений: ${isPrem ? '∞' : msgLimit}</div>;
-                chat.scrollTop = chat.scrollHeight;
-            }, 500);
+            const container = document.getElementById('chat-container');
+            
+            // Сообщение пользователя
+            container.innerHTML += <div class="message user">${escapeHtml(text)}</div>;
+            input.value = '';
+            container.scrollTop = container.scrollHeight;
+
+            // Если ключ не задан, выводим подсказку
+            if (!apiKey) {
+                setTimeout(() => {
+                    container.innerHTML += <div class="message ai">⚠️ Пожалуйста, укажите ваш API-ключ в настройках (иконка шестеренки вверху), чтобы отправлять запросы нейросети.</div>;
+                    container.scrollTop = container.scrollHeight;
+                }, 400);
+                return;
+            }
+
+// Индикатор загрузки
+            const loadingId = 'loading-' + Date.now();
+            container.innerHTML += <div class="message ai" id="${loadingId}">Думаю над ответом...</div>;
+            container.scrollTop = container.scrollHeight;
+
+            try {
+                // Запрос к реальному API нейросети (OpenAI формат)
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': Bearer ${apiKey}
+                    },
+                    body: JSON.stringify({
+                        model: "gpt-4o-mini",
+                        messages: [{ role: "user", content: text }]
+                    })
+                });
+
+                const data = await response.json();
+                document.getElementById(loadingId).remove();
+
+                if (data.choices && data.choices.length > 0) {
+                    const aiReply = data.choices[0].message.content;
+                    container.innerHTML += <div class="message ai">${escapeHtml(aiReply)}</div>;
+                } else {
+                    container.innerHTML += <div class="message ai">Ошибка ответа сервера: проверьте правильность API-ключа.</div>;
+                }
+            } catch (error) {
+                document.getElementById(loadingId).remove();
+                container.innerHTML += <div class="message ai">Ошибка соединения с сетью. Проверьте интернет.</div>;
+            }
+
+            container.scrollTop = container.scrollHeight;
         }
-        function buyPrem() {
-            isPrem = true;
-            alert('Оплата прошла успешно! Премиум активирован.');
-            document.getElementById('payModal').style.display = 'none';
-            document.getElementById('limit-counter').innerText = '∞';
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
-        function closeModal() { document.getElementById('payModal').style.display = 'none'; }
     </script>
 </body>
 </html>
