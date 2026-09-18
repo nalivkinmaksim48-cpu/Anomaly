@@ -1,0 +1,149 @@
+index.html
+```html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureSocial AI</title>
+    <style>
+        :root {
+            --vk-blue: #0077FF;
+            --vk-bg: #EDEEF0;
+            --vk-card: #FFFFFF;
+            --vk-text: #000000;
+            --vk-subtext: #818C99;
+        }
+        body.dark {
+            --vk-bg: #191919;
+            --vk-card: #222222;
+            --vk-text: #FFFFFF;
+            --vk-subtext: #999999;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: var(--vk-bg); color: var(--vk-text); display: flex; flex-direction: column; height: 100vh; }
+        header { background-color: var(--vk-card); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.1); }
+        .logo { font-weight: bold; color: var(--vk-blue); font-size: 18px; }
+        .theme-btn { background: none; border: none; font-size: 16px; cursor: pointer; }
+        .content { flex: 1; overflow-y: auto; padding: 12px; display: none; }
+        .content.active { display: block; }
+        nav { background-color: var(--vk-card); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid rgba(0,0,0,0.1); }
+        .nav-item { background: none; border: none; color: var(--vk-subtext); font-size: 12px; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+        .nav-item.active { color: var(--vk-blue); }
+        .nav-item span { font-size: 20px; margin-bottom: 2px; }
+        .player-card { background: var(--vk-card); padding: 16px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .track-info { margin-bottom: 10px; }
+        .track-title { font-weight: bold; }
+        .track-artist { font-size: 13px; color: var(--vk-subtext); }
+        .controls { display: flex; gap: 10px; margin-top: 10px; }
+        button.vk-btn { background-color: var(--vk-blue); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 500; }
+        .chat-list-item { background: var(--vk-card); padding: 12px; border-radius: 8px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .chat-avatar { width: 40px; height: 40px; background: var(--vk-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        .chat-box { display: flex; flex-direction: column; height: 100%; }
+        .messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 10px; }
+        .msg { padding: 10px 14px; border-radius: 10px; max-width: 80%; font-size: 14px; }
+        .msg.user { background: var(--vk-blue); color: white; align-self: flex-end; }
+        .msg.ai { background: var(--vk-card); align-self: flex-start; }
+        .chat-input-area { display: flex; gap: 8px; padding-top: 8px; }
+        .chat-input-area input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ccc; outline: none; background: var(--vk-card); color: var(--vk-text); }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal-content { background: var(--vk-card); padding: 24px; border-radius: 16px; text-align: center; width: 80%; max-width: 300px; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">VK Secure AI</div>
+        <button class="theme-btn" onclick="toggleTheme()">💡</button>
+    </header>
+    <div class="content active" id="tab-feed">
+        <h3 style="margin-bottom: 12px;">Музыкальный архив (Бесплатно)</h3>
+        <div class="player-card">
+            <div class="track-info">
+                <div class="track-title">Трек #1 (ВК Музыка)</div>
+
+<div class="track-artist">Исполнитель анонимный</div>
+            </div>
+            <audio id="audio" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" preload="none"></audio>
+            <div class="controls">
+                <button class="vk-btn" onclick="togglePlay()">Play / Pause</button>
+                <button class="vk-btn" onclick="cacheTrack()" style="background: #4bb34b;">В кеш (Offline)</button>
+            </div>
+        </div>
+    </div>
+    <div class="content" id="tab-messages">
+        <h3 style="margin-bottom: 12px;">Сообщения</h3>
+        <div class="chat-list-item" onclick="openAIChat()">
+            <div class="chat-avatar">AI</div>
+            <div>
+                <div style="font-weight: bold;">AI Assistant</div>
+                <div style="font-size: 13px; color: var(--vk-subtext);">Пробный период: <span id="limit-counter">10</span> сообщений</div>
+            </div>
+        </div>
+    </div>
+    <div class="content" id="tab-aicall" style="height: 100%;">
+        <div class="chat-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <h4>AI Assistant (Шифрованный чат)</h4>
+                <button class="vk-btn" onclick="switchTab('tab-messages')" style="padding: 4px 8px; font-size: 12px;">Назад</button>
+            </div>
+            <div class="messages" id="chat-messages">
+                <div class="msg ai">Привет! Я твой ИИ-помощник в защищенном контуре. Задай мне любой вопрос.</div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="user-input" placeholder="Введите сообщение...">
+                <button class="vk-btn" onclick="sendMsg()">Отправить</button>
+            </div>
+        </div>
+    </div>
+    <nav>
+        <button class="nav-item active" onclick="switchTab('tab-feed')"><span>🎵</span>Музыка</button>
+        <button class="nav-item" onclick="switchTab('tab-messages')"><span>💬</span>Чаты</button>
+    </nav>
+    <div class="modal" id="payModal">
+        <div class="modal-content">
+            <h3>Лимит исчерпан</h3>
+            <p style="margin: 12px 0; font-size: 14px; color: var(--vk-subtext);">Бесплатные 10 сообщений закончились. Оформите Премиум для безлимитной работы с ИИ.</p>
+            <button class="vk-btn" onclick="buyPrem()" style="width: 100%; margin-bottom: 8px;">Купить за 990 ₽</button>
+            <button onclick="closeModal()" style="background:none; border:none; color:var(--vk-subtext); cursor:pointer;">Закрыть</button>
+        </div>
+    </div>
+    <script>
+        let msgLimit = 10;
+        let isPrem = false;
+        function switchTab(tabId) {
+            document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            if(tabId !== 'tab-aicall') { event.currentTarget.classList.add('active'); }
+        }
+        function toggleTheme() { document.body.classList.toggle('dark'); }
+        const audio = document.getElementById('audio');
+        function togglePlay() { if (audio.paused) { audio.play(); } else { audio.pause(); } }
+        function cacheTrack() { alert('Трек успешно сохранен в кеш устройства для офлайн прослушивания!'); }
+        function openAIChat() { switchTab('tab-aicall'); }
+        function sendMsg() {
+            const input = document.getElementById('user-input');
+            const text = input.value.trim();
+            if(!text) return;
+            if(!isPrem && msgLimit <= 0) { document.getElementById('payModal').style.display = 'flex'; return; }
+            if(!isPrem) { msgLimit--; document.getElementById('limit-counter').innerText = msgLimit; }
+            const chat = document.getElementById('chat-messages');
+            chat.innerHTML += <div class="msg user">${text}</div>;
+            input.value = '';
+            setTimeout(() => {
+
+chat.innerHTML += <div class="msg ai">Ответ ИИ на ваш запрос (Безопасный режим активен). Оставшихся бесплатных сообщений: ${isPrem ? '∞' : msgLimit}</div>;
+                chat.scrollTop = chat.scrollHeight;
+            }, 500);
+        }
+        function buyPrem() {
+            isPrem = true;
+            alert('Оплата прошла успешно! Премиум активирован.');
+            document.getElementById('payModal').style.display = 'none';
+            document.getElementById('limit-counter').innerText = '∞';
+        }
+        function closeModal() { document.getElementById('payModal').style.display = 'none'; }
+    </script>
+</body>
+</html>
+``
