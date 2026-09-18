@@ -1,11 +1,17 @@
+json
 {
-  "background_color": "#ffffff",
-  "dir": "ltr",
-  "display": "standalone",
   "name": "Anomaly",
-  "orientation": "any",
-  "scope": "/",
   "short_name": "Anomaly",
-  "start_url": "/",
-  "theme_color": "#ffffff"
+  "description": "Secure Social Network and AI Assistant",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#EDEEF0",
+  "theme_color": "#0077FF",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/nalivkinmaksim48-cpu/Anomaly/main/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }
