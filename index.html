@@ -3,134 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anomaly AI Client</title>
+    <title>Anomaly AI</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background-color: #121212; color: #ffffff; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-
-        header { background-color: #1e1e1e; padding: 12px 16px; border-bottom: 1px solid #27272a; }
-        .logo { font-weight: bold; font-size: 16px; color: #6366f1; margin-bottom: 8px; }
-        
-        /* Блок настроек прямо в шапке */
-        .settings-box { display: flex; gap: 8px; }
-        .settings-box input { flex: 1; background: #121212; border: 1px solid #3f3f46; padding: 8px 12px; border-radius: 6px; color: #fff; font-size: 12px; outline: none; }
-        .settings-box button { background: #6366f1; border: none; padding: 8px 12px; border-radius: 6px; color: white; font-size: 12px; font-weight: bold; cursor: pointer; }
-
-        /* Окно чата */
-        .chat-container { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
-        .message { max-width: 85%; padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.4; word-break: break-word; }
-        .message.user { background: #4f46e5; align-self: flex-end; }
-        .message.ai { background: #27272a; align-self: flex-start; border: 1px solid #3f3f46; }
-
-        /* Панель ввода */
-        .input-area { background-color: #1e1e1e; padding: 12px 16px; display: flex; gap: 10px; align-items: center; border-top: 1px solid #27272a; }
-        .input-area input { flex: 1; background: #121212; border: 1px solid #3f3f46; padding: 12px 14px; border-radius: 20px; color: #fff; font-size: 14px; outline: none; }
-        .send-btn { background: #6366f1; border: none; width: 40px; height: 40px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; }
+        body { background: #121212; color: #fff; font-family: sans-serif; margin: 0; padding: 10px; display: flex; flex-direction: column; height: 95vh; }
+        .box { background: #1e1e1e; padding: 10px; margin-bottom: 10px; border-radius: 8px; }
+        input, button { padding: 10px; font-size: 14px; border-radius: 6px; border: 1px solid #444; background: #2a2a2a; color: #fff; }
+        input { width: 65%; }
+        button { background: #6366f1; border: none; cursor: pointer; }
+        #chat { flex: 1; overflow-y: auto; background: #18181b; padding: 10px; border-radius: 8px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .msg { padding: 8px 12px; border-radius: 6px; max-width: 80%; word-break: break-word; }
+        .user { background: #4f46e5; align-self: flex-end; }
+        .ai { background: #27272a; align-self: flex-start; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo">⚡ Anomaly AI Client</div>
-        <div class="settings-box">
-            <input type="password" id="api-key-input" placeholder="Введите API ключ (sk-...)">
-            <button onclick="saveKey()">Сохранить</button>
-        </div>
-    </header>
-
-    <div class="chat-container" id="chat-container">
-        <div class="message ai">Привет! Введи свой API-ключ в поле сверху, нажми «Сохранить» и отправь сообщение.</div>
+    <div class="box">
+        <input type="text" id="key" placeholder="API Ключ (sk-...)">
+        <button onclick="saveKey()">Сохранить ключ</button>
     </div>
 
-    <div class="input-area">
-        <input type="text" id="user-input" placeholder="Сообщение..." onkeypress="handleKeyPress(event)">
-        <button class="send-btn" onclick="sendMessage()">➤</button>
+    <div id="chat">
+        <div class="msg ai">Система готова. Введите ключ вверху и напишите сообщение ниже.</div>
+    </div>
+
+    <div class="box" style="display: flex; gap: 10px;">
+        <input type="text" id="txt" placeholder="Сообщение..." style="flex:1;" onkeypress="if(event.key==='Enter')send()">
+        <button onclick="send()" style="flex:0 0 80px;">Отправить</button>
     </div>
 
     <script>
-        // Загружаем сохраненный ключ при запуске
-        window.onload = function() {
-            let savedKey = localStorage.getItem('anomaly_key') || '';
-            if (savedKey) {
-                document.getElementById('api-key-input').value = savedKey;
-            }
-        };
+        document.getElementById('key').value = localStorage.getItem('k') || '';
 
         function saveKey() {
-            const key = document.getElementById('api-key-input').value.trim();
-            if (key) {
-                localStorage.setItem('anomaly_key', key);
-                alert('Ключ успешно сохранен в памяти устройства!');
-            } else {
-                alert('Поле ключа пустое!');
-            }
+            let val = document.getElementById('key').value.trim();
+            localStorage.setItem('k', val);
+            alert('Сохранено!');
         }
 
-        function handleKeyPress(e) {
-            if (e.key === 'Enter') sendMessage();
-        }
-
-async function sendMessage() {
-            const input = document.getElementById('user-input');
-            const text = input.value.trim();
+        async function send() {
+            let txtIn = document.getElementById('txt');
+            let text = txtIn.value.trim();
             if(!text) return;
 
-            const key = localStorage.getItem('anomaly_key') || document.getElementById('api-key-input').value.trim();
-            const container = document.getElementById('chat-container');
+            let key = localStorage.getItem('k') || document.getElementById('key').value.trim();
+            let chat = document.getElementById('chat');
 
-            container.innerHTML += <div class="message user">${escapeHtml(text)}</div>;
-            input.value = '';
-            container.scrollTop = container.scrollHeight;
+            chat.innerHTML += <div class="msg user">${text}</div>;
+            txtIn.value = '';
+            chat.scrollTop = chat.scrollHeight;
 
-            if (!key) {
-                setTimeout(() => {
-                    container.innerHTML += <div class="message ai">⚠️ Сначала введите и сохраните API-ключ в поле наверху экрана.</div>;
-                    container.scrollTop = container.scrollHeight;
-                }, 300);
+            if(!key) {
+                chat.innerHTML += <div class="msg ai">Ошибка: Введите API-ключ вверху!</div>;
                 return;
             }
 
-            const loadingId = 'load-' + Date.now();
-            container.innerHTML += <div class="message ai" id="${loadingId}">Нейросеть думает...</div>;
-            container.scrollTop = container.scrollHeight;
+            chat.innerHTML += <div class="msg ai" id="load">Думаю...</div>`;
+            chat.scrollTop = chat.scrollHeight;
 
             try {
-                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                let res = await fetch('https://api.openai.com/v1/chat/completions', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': Bearer ${key}
-                    },
-                    body: JSON.stringify({
-                        model: "gpt-4o-mini",
-                        messages: [{ role: "user", content: text }]
-                    })
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+                    body: JSON.stringify({ model: "gpt-4o-mini", messages: [{ role: "user", content: text }] })
                 });
+                let data = await res.json();
+                document.getElementById('load').remove();
 
-                const data = await response.json();
-                const loadEl = document.getElementById(loadingId);
-                if (loadEl) loadEl.remove();
-
-                if (data.choices && data.choices.length > 0) {
-                    container.innerHTML += <div class="message ai">${escapeHtml(data.choices.completions || data.choices.message.content)}</div>;
-                } else if (data.error) {
-                    container.innerHTML += <div class="message ai">Ошибка ответа: ${escapeHtml(data.error.message)}</div>;
+if(data.choices) {
+                    chat.innerHTML += <div class="msg ai">${data.choices[0].message.content}</div>;
                 } else {
-                    // Обработка формата ответа OpenAI
-                    const reply = data.choices[0].message.content;
-                    container.innerHTML += <div class="message ai">${escapeHtml(reply)}</div>;
+                    chat.innerHTML += <div class="msg ai">Ошибка API: проверьте правильность ключа.</div>;
                 }
-            } catch (err) {
-                const loadEl = document.getElementById(loadingId);
-                if (loadEl) loadEl.remove();
-                container.innerHTML += <div class="message ai">Ошибка соединения с сервером.</div>;
+            } catch(e) {
+                document.getElementById('load').remove();
+                chat.innerHTML += <div class="msg ai">Ошибка сети.</div>;
             }
-
-            container.scrollTop = container.scrollHeight;
-        }
-
-        function escapeHtml(str) {
-            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            chat.scrollTop = chat.scrollHeight;
         }
     </script>
 </body>
